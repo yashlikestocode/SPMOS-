@@ -1,95 +1,59 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { apiRequest } from '@/lib/queryClient';
-import type { User } from '@shared/schema';
+import {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+} from "react";
 
-interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (userData: {
-    fullName: string;
-    email: string;
-    username: string;
-    password: string;
-    phoneNumber?: string;
-  }) => Promise<void>;
-  logout: () => void;
-  isAuthenticated: boolean;
-}
+const AuthContext = createContext<any>(null);
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<any | null>(null);
 
   useEffect(() => {
-    // Check for existing session in localStorage
-    const savedUser = localStorage.getItem('spmos_user');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        localStorage.removeItem('spmos_user');
-      }
+    const storedUser = localStorage.getItem("spmos_user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await apiRequest('POST', '/api/auth/login', {
-        email,
-        password,
-      });
-      const data = await response.json();
-      setUser(data.user);
-      localStorage.setItem('spmos_user', JSON.stringify(data.user));
-    } catch (error) {
-      throw new Error('Invalid email or password');
+  const login = (email: string, password: string) => {
+    // Simple dummy login logic
+    if (email === "test@example.com" && password === "password123") {
+      const dummyUser = { email: "test@example.com", fullName: "Test User" };
+      localStorage.setItem("spmos_user", JSON.stringify(dummyUser));
+      setUser(dummyUser);
+      setIsAuthenticated(true);
+      return Promise.resolve();
     }
+    return Promise.reject(new Error("Invalid email or password"));
   };
 
-  const signup = async (userData: {
-    fullName: string;
-    email: string;
-    username: string;
-    password: string;
-    phoneNumber?: string;
-  }) => {
-    try {
-      const response = await apiRequest('POST', '/api/auth/signup', userData);
-      const data = await response.json();
-      setUser(data.user);
-      localStorage.setItem('spmos_user', JSON.stringify(data.user));
-    } catch (error) {
-      throw new Error('Failed to create account');
-    }
+  const signup = (userData: any) => {
+    // Simple dummy signup logic
+    const dummyUser = { email: userData.email, fullName: userData.fullName };
+    localStorage.setItem("spmos_user", JSON.stringify(dummyUser));
+    setUser(dummyUser);
+    setIsAuthenticated(true);
+    return Promise.resolve();
   };
 
   const logout = () => {
+    localStorage.removeItem("spmos_user");
     setUser(null);
-    localStorage.removeItem('spmos_user');
-    localStorage.removeItem('spmos_session');
-    localStorage.removeItem('spmos_booking');
+    setIsAuthenticated(false);
   };
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        login,
-        signup,
-        logout,
-        isAuthenticated: !!user,
-      }}
+      value={{ isAuthenticated, user, login, signup, logout }}
     >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+export const useAuth = () => useContext(AuthContext);

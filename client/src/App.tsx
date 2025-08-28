@@ -1,19 +1,17 @@
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { ParkingProvider, useParking } from '@/contexts/ParkingContext';
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./lib/queryClient";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ParkingProvider, useParking } from "@/contexts/ParkingContext";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Components
-import AuthModal from '@/components/AuthModal';
-import NavigationHeader from '@/components/NavigationHeader';
-import LandingPage from '@/components/LandingPage';
-import SearchPage from '@/components/SearchPage';
-import BookingModal from '@/components/BookingModal';
-import ParkingSession from '@/components/ParkingSession';
-import NavigationModal from '@/components/NavigationModal';
-import SessionSummary from '@/components/SessionSummary';
+import AuthModal from "@/components/AuthModal";
+import NavigationHeader from "@/components/NavigationHeader";
+import LandingPage from "@/components/LandingPage";
+import SearchPage from "@/components/SearchPage";
+import BookingModal from "@/components/BookingModal";
+import ParkingSession from "@/components/ParkingSession";
+import NavigationModal from "@/components/NavigationModal";
+import SessionSummary from "@/components/SessionSummary";
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -25,13 +23,13 @@ function AppContent() {
 
   const renderCurrentView = () => {
     switch (currentView) {
-      case 'landing':
+      case "landing":
         return <LandingPage />;
-      case 'search':
+      case "search":
         return <SearchPage />;
-      case 'session':
+      case "session":
         return <ParkingSession />;
-      case 'summary':
+      case "summary":
         return <SessionSummary />;
       default:
         return <LandingPage />;
@@ -50,16 +48,14 @@ function AppContent() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <ParkingProvider>
-            <AppContent />
-            <Toaster />
-          </ParkingProvider>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <TooltipProvider>
+      <AuthProvider>
+        <ParkingProvider>
+          <AppContent />
+          <Toaster />
+        </ParkingProvider>
+      </AuthProvider>
+    </TooltipProvider>
   );
 }
 
